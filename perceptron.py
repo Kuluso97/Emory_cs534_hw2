@@ -31,16 +31,21 @@ class Perceptron(object):
 		res = self.predict(X_test)
 		return sum(res==y_test)/y_test.shape[0]
 
-## Import data 
+def main():
 
-df = pd.read_csv('hw2_data_1.txt', sep='\t')
+	## Import data 
 
-X_train, y_train = np.array(df.iloc[:70,:-1]), np.array(df.iloc[:70,-1])
-X_test, y_test = np.array(df.iloc[70:,:-1]), np.array(df.iloc[70:,-1])
+	df = pd.read_csv('hw2_data_1.txt', sep='\t')
 
-## Train data
+	X_train, y_train = np.array(df.iloc[:70,:-1]), np.array(df.iloc[:70,-1])
+	X_test, y_test = np.array(df.iloc[70:,:-1]), np.array(df.iloc[70:,-1])
 
-clf = Perceptron(learning_rate=1, iterations=50)
-clf.fit(X_train, y_train)
+	## Train data
 
-print("The error rate of the Perceptron classifier after 50 iterations is %.2f" %(1-clf.score(X_test,y_test)))
+	clf = Perceptron(learning_rate=1, iterations=50)
+	clf.fit(X_train, y_train)
+
+	print("The error rate of the Perceptron classifier after 50 iterations is %.2f" %(1-clf.score(X_test,y_test)))
+
+if __name__ == '__main__':
+	main()
