@@ -19,7 +19,7 @@ class Adaboost(object):
 
 			y_pred = self.base_clf.predict(X_train)
 			err = np.dot(self.weights, y_pred != y_train) / np.sum(self.weights)
-			alpha_m = np.log((1-err)/float(err))
+			alpha_m = np.log2((1-err)/float(err))
 			self.alphas.append(alpha_m)
 
 			self.weights = np.multiply(self.weights, np.exp(alpha_m * (y_pred != y_train)))
@@ -44,8 +44,8 @@ class DecisionTreeStump(object):
 
 	def fit(self, X_train, y_train, sample_weight):
 		self.X_train, self.y_train = X_train, y_train
-		x1_s = np.sort(X_train[:, 0])
-		x2_s = np.sort(X_train[:, 1])
+		x1_s = np.sort(np.unique(X_train[:, 0]))
+		x2_s = np.sort(np.unique(X_train[:, 1]))
 		entropy_min = float('inf')
 		res = (x1_s[0], 0)
 
@@ -85,9 +85,9 @@ class DecisionTreeStump(object):
 		return -sum([pi * np.log2(pi) for pi in (p1,p2) if pi > 0])
 
 	def predict(self, X_test):
-		axe = self.criterion[1]
-		label = 1 if np.sum(self.y_train[self.X_train[:, axe] <= self.criterion[0]]) > 0 else -1
-		return np.where(X_test[:, axe] <= self.criterion[0], label, -label)
+		axis = self.criterion[1]
+		label = 1 if np.sum(self.y_train[self.X_train[:, axis] <= self.criterion[0]]) > 0 else -1
+		return np.where(X_test[:, axis] <= self.criterion[0], label, -label)
 		
 
 def main():
