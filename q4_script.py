@@ -38,7 +38,8 @@ num_trees = (index + 1) * 10
 clf = RandomForestClassifier(n_estimators=num_trees)
 clf.fit(X_train, y_train)
 
-print("The error rate for the random forest classifier with %s estimators is %.4f" %(num_trees, 1-clf.score(X_test,y_test)))
+print("The error rate for the random forest classifier with %s estimators is %.4f" 
+										%(num_trees, 1-clf.score(X_test,y_test)))
 
 ## Rank the variables by importance
 importances = clf.feature_importances_
