@@ -45,50 +45,49 @@ class DecisionTreeStump(object):
 	def fit(self, X_train, y_train, sample_weight):
 		self.X_train, self.y_train = X_train, y_train
 		x1_s = np.sort(np.unique(X_train[:, 0]))
+		sep_1 = self.__get_midpoints(x1_s)
 		x2_s = np.sort(np.unique(X_train[:, 1]))
-		entropy_min = float('inf')
-		res = (x1_s[0], 0)
+		sep_2 = self.__get_midpoints(x2_s)
 
-		for sep in x1_s[:-1]:
-			left = list(zip(y_train[X_train[:,0] <= sep], sample_weight[X_train[:,0] <= sep]))
-			right = list(zip(y_train[X_train[:,0] > sep], sample_weight[X_train[:,0] > sep]))
-			entropy = self.__entropy(left) + self.__entropy(right)
-			if entropy < entropy_min:
-				entropy_min = entropy
-				res = (sep, 0)
+		min_error_rate = float('inf')
+		best_criterion = (sep_1[0], 0)
 
-		for sep in x2_s[:-1]:
-			left = list(zip(y_train[X_train[:, 1] <= sep], sample_weight[X_train[:, 1] <= sep]))
-			right = list(zip(y_train[X_train[:, 1] > sep], sample_weight[X_train[:, 1] > sep]))
-			entropy = self.__entropy(left) + self.__entropy(right)
-			if entropy < entropy_min:
-				entropy_min = entropy
-				res = (sep, 1)
+		for sep in sep_1:
+			cur_criterion = (sep, 0)
+			self.criterion = cur_criterion
+			error_rate = 1 - self.score(X_train, y_train, sample_weight)
+			if error_rate < min_error_rate:
+				min_error_rate = error_rate
+				best_criterion = cur_criterion
 
-		self.criterion = res
+		for sep in sep_2:
+			cur_criterion = (sep, 1)
+			self.criterion = cur_criterion
+			error_rate = 1 - self.score(X_train, y_train, sample_weight)
+			if error_rate < min_error_rate:
+				min_error_rate = error_rate
+				best_criterion = cur_criterion
+
+		self.criterion = best_criterion
 
 		return self
 
-	def __entropy(self, points):
-		group_1 = [point for point in points if point[0] == 1]
-		group_2 = [point for point in points if point[0] == -1]
-		weight_1, weight_2 = 0.0, 0.0
-		for point in group_1:
-			weight_1 += point[1]
+	def __get_midpoints(self, X):
+		res = []
+		for i in range(1, len(X)):
+			res.append((X[i] + X[i-1]) / 2)
 
-		for point in group_2:
-			weight_2 += point[1]
-
-		p1 = weight_1 / (weight_1 + weight_2)
-		p2 = 1 - p1
-
-		return -sum([pi * np.log2(pi) for pi in (p1,p2) if pi > 0])
+		return res
 
 	def predict(self, X_test):
 		axis = self.criterion[1]
 		label = 1 if np.sum(self.y_train[self.X_train[:, axis] <= self.criterion[0]]) > 0 else -1
-		return np.where(X_test[:, axis] <= self.criterion[0], label, -label)
-		
+		return np.where(X_test[:, axis] < self.criterion[0], label, -label)
+
+	def score(self, X_test, y_test, sample_weight):
+		res = self.predict(X_test)
+		return np.dot(res == y_test, sample_weight) / sum(sample_weight)
+
 
 def main():
 	## Import data 
