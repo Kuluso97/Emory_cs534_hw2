@@ -19,7 +19,7 @@ class Adaboost(object):
 
 			y_pred = self.base_clf.predict(X_train)
 			err = np.dot(self.weights, y_pred != y_train) / np.sum(self.weights)
-			alpha_m = np.log2((1-err)/float(err))
+			alpha_m = np.log((1-err)/float(err))
 			self.alphas.append(alpha_m)
 
 			self.weights = np.multiply(self.weights, np.exp(alpha_m * (y_pred != y_train)))
